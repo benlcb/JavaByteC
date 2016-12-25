@@ -48,7 +48,11 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
                 break;
 
             case BYTECODE:
-                java_version = reflector(ctx.PARAM(0).toString().substring(1));
+                try {
+                    java_version = Integer.parseInt(ctx.PARAM(0).toString().substring(1));
+                } catch (Exception e) {
+                    java_version = (int) reflector(ctx.PARAM(0).toString().substring(1));
+                }
                 break;
 
             case ACCESS:
@@ -75,6 +79,9 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
                 break;
 
             case CLASSVISIT:
+                if (ctx.getChildCount() == 2) {
+                    classname = ctx.PARAM(0).toString().substring(1);
+                }
                 classWriter.visit(java_version, classacc, classname, signature, supername, interfaces);
                 break;
 
@@ -84,6 +91,10 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
                 break;
 
             case METHODVISIT:
+                if (ctx.getChildCount() == 3) {
+                    methodName = ctx.PARAM(0).toString().substring(1);
+                    methodDesc = ctx.PARAM(1).toString().substring(1);
+                }
                 methodVisitor = classWriter.visitMethod(methodAccess, methodName, methodDesc, methodSign, methodExcep);
                 methodVisitor.visitCode();
                 labels = new LabelMap(); // Default Size of 16, LF 0.75
@@ -152,7 +163,7 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
     public Object visitInsn(JavaByteGrammarParser.InsnContext ctx){
 
         InstructionContext insnCtx = (InstructionContext) ctx.getParent().getParent();
-        int opcVal = reflector(insnCtx.getChild(0).getText().toUpperCase());
+        int opcVal = (int) reflector(insnCtx.getChild(0).getText().toUpperCase());
 
         methodVisitor.visitInsn(opcVal);
 
@@ -164,7 +175,7 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
     public Object visitFieldinsn(JavaByteGrammarParser.FieldinsnContext ctx){
 
         InstructionContext insnCtx = (InstructionContext) ctx.getParent().getParent();
-        int opcVal = reflector(insnCtx.getChild(0).getText().toUpperCase());
+        int opcVal = (int) reflector(insnCtx.getChild(0).getText().toUpperCase());
 
         String owner = insnCtx.getChild(1).getText().substring(1);
         String name = insnCtx.getChild(2).getText().substring(1);
@@ -179,7 +190,7 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
     public Object visitMethodinsn(JavaByteGrammarParser.MethodinsnContext ctx){
 
         InstructionContext insnCtx = (InstructionContext) ctx.getParent().getParent();
-        int opcVal = reflector(insnCtx.getChild(0).getText().toUpperCase());
+        int opcVal = (int) reflector(insnCtx.getChild(0).getText().toUpperCase());
 
         String owner = insnCtx.getChild(1).getText().substring(1);
         String name = insnCtx.getChild(2).getText().substring(1);
@@ -199,7 +210,7 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
     public Object visitVarinsn(JavaByteGrammarParser.VarinsnContext ctx){
 
         InstructionContext insnCtx = (InstructionContext) ctx.getParent().getParent();
-        int opcVal = reflector(insnCtx.getChild(0).getText().toUpperCase());
+        int opcVal = (int) reflector(insnCtx.getChild(0).getText().toUpperCase());
 
         int index = Integer.parseInt(insnCtx.getChild(1).toString());
         methodVisitor.visitVarInsn(opcVal,index);
@@ -226,7 +237,7 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
     public Object visitTypeinsn(JavaByteGrammarParser.TypeinsnContext ctx){
 
         InstructionContext insnCtx = (InstructionContext) ctx.getParent().getParent();
-        int opcVal = reflector(insnCtx.getChild(0).getText().toUpperCase());
+        int opcVal = (int) reflector(insnCtx.getChild(0).getText().toUpperCase());
 
         String type = insnCtx.getChild(1).toString().substring(1);
         methodVisitor.visitTypeInsn(opcVal, type);
@@ -238,7 +249,7 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
     public Object visitIntinsn(JavaByteGrammarParser.IntinsnContext ctx){
 
         InstructionContext insnCtx = (InstructionContext) ctx.getParent().getParent();
-        int opcVal = reflector(insnCtx.opcode().getText().toUpperCase());
+        int opcVal = (int) reflector(insnCtx.opcode().getText().toUpperCase());
 
         int operand = 0;
         try{
@@ -248,7 +259,7 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
 
             String operandDesc = insnCtx.PARAM(0).toString().substring(1);
             if (!operandDesc.startsWith("T_")) operandDesc += "T_";
-            operand = reflector(operandDesc);
+            operand = (int) reflector(operandDesc);
 
         }
 
@@ -330,7 +341,7 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
     public Object visitJumpInsn(JavaByteGrammarParser.JumpInsnContext ctx){
 
         InstructionContext insnCtx = (InstructionContext) ctx.getParent().getParent();
-        int opcVal = reflector(insnCtx.opcode().getText().toUpperCase());
+        int opcVal = (int) reflector(insnCtx.opcode().getText().toUpperCase());
 
         Label label = labels.getLabel(insnCtx.PARAM(0).toString());
 
@@ -405,7 +416,7 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
 
         String type = insnCtx.PARAM(0).toString().substring(1);
         if (!type.startsWith("F_")) type = "F_" + type;
-        int typecode = reflector(type.toUpperCase());
+        int typecode = (int) reflector(type.toUpperCase());
 
         int nLocal = 0;
         Object[] local = null;
@@ -515,8 +526,7 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
         try {
             typeRef = Integer.parseInt(insnCtx.PARAM(0).toString());
         } catch (NumberFormatException e) {
-            //TODO: Reflect TypeReference from org.objectweb.asm.TypeReference
-            System.out.println("Insn Annotation: Type Reference By Name not implemented.");
+            typeRef = (int) typeReflector(insnCtx.PARAM(0).toString().substring(1));
         }
 
         TypePath typePath = null;

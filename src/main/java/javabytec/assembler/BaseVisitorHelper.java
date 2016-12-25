@@ -1,29 +1,30 @@
 package javabytec.assembler;
 
-import javabytec.parser.JavaByteGrammarParser;
 import org.antlr.v4.runtime.ParserRuleContext;
-
+import org.objectweb.asm.TypeReference;
 import java.lang.reflect.Field;
 
-/**
- * Created by cajus on 10/11/16.
- */
 public class BaseVisitorHelper {
-
+    /*
+    The implementation of Opcodes which is needed for Refelction
+     */
+    static class OpcodeReflection implements org.objectweb.asm.Opcodes {}
 
     //TODO: Generalise Reflectors
-
-     public static int reflector(String s){
+    /*
+    The reflectors used to convert Instruction Codes to Opcodes and similar
+     */
+     public static Object reflector(String fieldName){
 
         OpcodeReflection opcr = new OpcodeReflection();
         Field opcField;
-        int opcVal;
+        Object opcVal;
         Class opcodesClass = opcr.getClass();
         try {
-            opcField = opcodesClass.getField(s);
-            opcVal = opcField.getInt(opcr);
+            opcField = opcodesClass.getField(fieldName);
+            opcVal = opcField.get(opcr);
         } catch (NoSuchFieldException e) {
-            System.out.println("Relfection Failed: Opcode Name [" + s + "] does not exist in objectweb.asm.Opcodes");
+            System.out.println("Relfection Failed: Opcode Name [" + fieldName + "] does not exist in objectweb.asm.Opcodes");
             e.printStackTrace();
             return 0;
         } catch (IllegalAccessException e) {
@@ -34,17 +35,17 @@ public class BaseVisitorHelper {
         return opcVal;
     }
 
-    static Integer integerReflector(String s){
+    public static Object typeReflector(String fieldName){
 
-        OpcodeReflection opcr = new OpcodeReflection();
+        TypeReference opcr = new TypeReference(0);
         Field opcField;
-        Integer opcVal;
+        Object opcVal;
         Class opcodesClass = opcr.getClass();
         try {
-            opcField = opcodesClass.getField(s);
-            opcVal = (Integer) opcField.get(opcr);
+            opcField = opcodesClass.getField(fieldName);
+            opcVal = opcField.get(opcr);
         } catch (NoSuchFieldException e) {
-            System.out.println("Relfection Failed: Opcode Name [" + s + "] does not exist in objectweb.asm.Opcodes");
+            System.out.println("Relfection Failed: TypeReference Name [" + fieldName + "] does not exist in objectweb.asm.Opcodes");
             e.printStackTrace();
             return 0;
         } catch (IllegalAccessException e) {
@@ -55,6 +56,9 @@ public class BaseVisitorHelper {
         return opcVal;
     }
 
+    /*
+    Used to accumulate Access Flags in .methodAccess
+     */
     public static int accessCalc(ParserRuleContext ctx){
         return accessCalc(ctx, 1);
     }
@@ -63,7 +67,11 @@ public class BaseVisitorHelper {
         int accumulate = 0;
 
         for (;ctx.getChild(index)!=null; index++){
-            accumulate += reflector(ctx.getChild(index).toString().substring(1));
+            try {
+                accumulate += Integer.parseInt(ctx.getChild(index).toString().substring(1));
+            } catch (NumberFormatException e) {
+                accumulate += (int) reflector(ctx.getChild(index).toString().substring(1));
+            }
         }
 
         return accumulate;
@@ -86,7 +94,7 @@ public class BaseVisitorHelper {
         for (int i = 0; i<local.length; i++) {
 
             if (arrayed[i].startsWith(".")){
-                local[i] = integerReflector(arrayed[i].substring(1).toUpperCase());
+                local[i] = (Integer) reflector(arrayed[i].substring(1).toUpperCase());
             } else if (arrayed[i].startsWith("#")) {
                 local[i] = labelMap.getLabel(arrayed[i]);
             } else {
