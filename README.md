@@ -165,20 +165,29 @@ TODO
 The project is developed using Maven, the Maven Antlr4 Plugin and the Intellij Idea IDE. 
 
 Antlr4 is used to generate a parser, wich is then inherited apon to create the assembler. 
-A grammar file specifies the syntax to write our Java Assembler, and a method is created in the BaseVisitor class for each 
-type of instruction. 
+A grammar file specifies the syntax to write our Java Assembler. A method is created in the BaseVisitor class for each 
+type of instruction. The can be modified to create the corresponding java bytecode. 
 
-First, let's have a look on the folder structure:
+Let's have a look on the folder structure:
 
 Folder | Content
 ------------ | -------------
 examples | Code Examples in JavaByteC ASM, also used for testing
 snapshots | Recent Snapshots
 src | The Code Base
-src/test/java/testng | Holds test based on the testNG framework.
+src/test/java/ | Holds test based on the testNG framework.
 main/java/ | Holds the code which inherits from the ANTLR4 generated parser
 main/antlr4 | Holds the grammar file which is used by ANTLR4 to generate the parser
 
+The parser is in the javabytec/assembler package. Let's have a look at the contained classes: 
+
+Class | Content
+------------ | -------------
+BaseVisitor.java | Contains the methods which are called for each type of instruction
+BaseVisitorHelper.java | Contains helper methods for things like converting constant names to integers etc. 
+ASMConstants.java | Is implemented by BaseVisitor, contains COMPUTE_MAXS constant, maybe we can delete it later.
+AssemblerAPI.java | Contains the API as described in the User Guide
+LabelMap.java | Class to hold Labels used in Functions
 
 
 ## 4. Credits
