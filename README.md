@@ -9,7 +9,7 @@ If you spend your time creating your Java classes with OW2 ASM or compiling from
 Use the JavaByteC Assembler to generate classes from textfiles or in-code Java strings. 
 
 ## 2. User Guide
-To download and use the compiler go to the **target** folder and download the newest jar file with included dependencies. 
+To download and use the compiler go to the **snapshots** folder and download the newest jar file with included dependencies. 
 
 ### The API
 
@@ -162,7 +162,24 @@ TODO
    
 ## 3. Developer Guide
 
-The project is developed using Maven and the Intellij Idea IDE. The 
+The project is developed using Maven, the Maven Antlr4 Plugin and the Intellij Idea IDE. 
+
+Antlr4 is used to generate a parser, wich is then inherited apon to create the assembler. 
+A grammar file specifies the syntax to write our Java Assembler, and a method is created in the BaseVisitor class for each 
+type of instruction. 
+
+First, let's have a look on the folder structure:
+
+Folder | Content
+------------ | -------------
+examples | Code Examples in JavaByteC ASM, also used for testing
+snapshots | Recent Snapshots
+src | The Code Base
+src/test/java/testng | Holds test based on the testNG framework.
+main/java/ | Holds the code which inherits from the ANTLR4 generated parser
+main/antlr4 | Holds the grammar file which is used by ANTLR4 to generate the parser
+
+
 
 ## 4. Credits
 The project started as a studen project suggested by the CITI Lab at the INSA Lyon, 
