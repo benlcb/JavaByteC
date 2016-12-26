@@ -224,9 +224,27 @@ public class BaseVisitor extends JavaByteGrammarBaseVisitor implements ASMConsta
 
         InstructionContext insnCtx = (InstructionContext) ctx.getParent().getParent();
 
-        String constantType = insnCtx.PARAM(0).toString().substring(1);
+        String constantTypeName = insnCtx.PARAM(0).toString().substring(1);
+        Integer constantType = (Integer) reflector(constantTypeName);
 
-        String constant = insnCtx.PARAM(1).toString().replace('\"', ' ');
+        Object constant = null;
+
+        if (constantType != null) {
+            if (constantType == Opcodes.INTEGER) {
+                constant = Integer.parseInt(insnCtx.PARAM(1).toString().substring(1));
+            } else if(constantType == Opcodes.DOUBLE) {
+                constant = Double.parseDouble(insnCtx.PARAM(1).toString().substring(1));
+            } else if(constantType == Opcodes.FLOAT) {
+                constant = Float.parseFloat(insnCtx.PARAM(1).toString().substring(1));
+            } else if(constantType == Opcodes.LONG) {
+                constant = Long.parseLong(insnCtx.PARAM(1).toString().substring(1));
+            }
+            // Type is TOP (
+        } else {
+            if (constantTypeName == "Ljava/lang/String;") {
+                constant = insnCtx.PARAM(1).toString().substring(1);
+            }
+        }
 
         methodVisitor.visitLdcInsn(constant);
 

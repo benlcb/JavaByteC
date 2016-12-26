@@ -12,7 +12,7 @@ public class BaseVisitorHelper {
 
     //TODO: Generalise Reflectors
     /*
-    The reflectors used to convert Instruction Codes to Opcodes and similar
+    The reflectors used to convert Instruction Codes to Opcodes and similar.
      */
      public static Object reflector(String fieldName){
 
@@ -24,12 +24,12 @@ public class BaseVisitorHelper {
             opcField = opcodesClass.getField(fieldName);
             opcVal = opcField.get(opcr);
         } catch (NoSuchFieldException e) {
-            System.out.println("Relfection Failed: Opcode Name [" + fieldName + "] does not exist in objectweb.asm.Opcodes");
-            e.printStackTrace();
-            return 0;
+            //System.out.println("Relfection Failed: Opcode Name [" + fieldName + "] does not exist in objectweb.asm.Opcodes");
+            //e.printStackTrace();
+            return null;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-            return 0;
+            return null;
         }
 
         return opcVal;

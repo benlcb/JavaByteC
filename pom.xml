@@ -45,6 +45,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <outputDirectory>./snapshots/</outputDirectory>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
