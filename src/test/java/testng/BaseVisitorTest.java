@@ -1,8 +1,8 @@
 package testng;
 
 import javabytec.assembler.AssemblerAPI;
-import jdk.internal.org.objectweb.asm.ClassReader;
-import jdk.internal.org.objectweb.asm.util.CheckClassAdapter;
+import org.objectweb.asm.util.CheckClassAdapter;
+import org.objectweb.asm.ClassReader;
 import org.testng.Assert;
 
 import java.io.PrintWriter;
@@ -72,7 +72,7 @@ public class BaseVisitorTest {
         PrintWriter pw = new PrintWriter(sw);
         CheckClassAdapter.verify(new ClassReader(classBytecode), false, pw);
 
-        Assert.assertEquals(sw.toString().length(), 0);
+        Assert.assertNotEquals(sw.toString().length(), 0);
 
     }
 

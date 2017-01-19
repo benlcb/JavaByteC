@@ -1,3 +1,5 @@
+; This should not pass the ASM Verifier due to the WRONG_FIELDNAME
+
 .COMPUTE_MAXS
 
 .bytecode #V1_7
@@ -30,7 +32,7 @@
 .methodVisit
     GETSTATIC #java/lang/System #out #Ljava/io/PrintStream;
     ALOAD 0
-    GETFIELD #Demos #var1 #I
+    GETFIELD #WRONG_FIELDNAME #var1 #I
     INVOKEVIRTUAL #java/io/PrintStream #println #(I)V
     RETURN
 .visitMaxs 2 1
